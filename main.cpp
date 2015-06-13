@@ -45,15 +45,29 @@ number build_repunit(const number &index, const number &base)
 
 pair<number, number> find_repunit(const number &n)
 {
-    number index = 1;
+    number index = 2;
     number base = 2;
     number step_base = base;
-    number step_index = 1;
+    number step_index = 2;
     number current_repunit;
+    bool all_bigger = true;
+    pair<number, number> trivial_representation = make_pair(2, n-1);
+
+    if(n == 0 || n == 2)
+    {
+        return make_pair(0, 0);
+    }
+
+    if(n == 1)
+    {
+        return make_pair(1, 2);
+    }
 
     // diagonalisation method
     for(number step = 1;;step += 2)
     {
+        all_bigger = true;
+
         step_base = 2;
         step_index = index;
 
@@ -64,19 +78,34 @@ pair<number, number> find_repunit(const number &n)
 
             if(current_repunit == n)
             {
-                return make_pair(step_index, step_base);
+                // skip trivial representations
+                if(step_index != 2 || step_base != n-1)
+                {
+                    return make_pair(step_index, step_base);
+                }
+            }
+            else if(current_repunit < n)
+            {
+                all_bigger = false;
             }
 
             step_index--;
             step_base++;
         }
 
+        if(all_bigger)
+        {
+            return trivial_representation;
+        }
+
         // next diagonal
         base++;
         index++;
 
+        all_bigger = true;
+
         step_base = base;
-        step_index = 1;
+        step_index = 2;
 
         // right
         for(number d = 0;d < step+1;d++)
@@ -85,11 +114,24 @@ pair<number, number> find_repunit(const number &n)
 
             if(current_repunit == n)
             {
-                return make_pair(step_index, step_base);
+                // skip trivial representations
+                if(step_index != 2 || step_base != n-1)
+                {
+                    return make_pair(step_index, step_base);
+                }
+            }
+            else if(current_repunit < n)
+            {
+                all_bigger = false;
             }
 
             step_index++;
             step_base--;
+        }
+
+        if(all_bigger)
+        {
+            return trivial_representation;
         }
 
         // next diagonal
@@ -105,7 +147,7 @@ void usage(char *name)
     cout << "usage:" << endl;
     cout << name << " number" << endl;
     cout << "\tnumber\tIs the number for which its repunit representation is to be" << endl;
-    cout << "\t\tsearched." << endl;
+    cout << "\t\tsearched, must be greater or equal to 0." << endl;
 }
 
 int main(int argc, char *argv[])
